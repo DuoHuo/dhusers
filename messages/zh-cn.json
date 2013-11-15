@@ -1,6 +1,8 @@
 {
     "USER_VERIFICATION_SUBJECT": "用户激活",
     "USER_VERIFICATION_BODY": "亲爱的 %s, 感谢您注册%s。请通过下面的链接来激活您的帐号。\n\n%s\n\n如果您没有在本站点注册帐号，则您的邮件可能已被盗用。请反馈给本站管理员。",
-    "LOGIN_FAIL_WARNING": "登陆失败警告",
-    "LOGIN_FAIL_WARNING_BODY": "您的帐号在 IP %s 登陆失败，可能是恶意登录尝试。\n\n如果您忘记了自己的密码，请联系管理员以解决该问题。"
+    "LOGIN_FAIL_WARNING_SUBJECT": "登陆失败警告",
+    "LOGIN_FAIL_WARNING_BODY": "您的帐号在 IP %s 登陆失败，可能是恶意登录尝试。\n\n如果您忘记了自己的密码，请联系管理员以解决该问题。",
+    "RESET_PASSWORD_SUBJECT": "重置密码",
+    "RESET_PASSWORD_BODY": "您在 IP %s 请求重置密码。请在1小时内通过下面的链接进行密码重置。\n\n%s\n\n如果该请求不是您本人所为，您当前无需采取任何操作。或者您可以将该问题反馈给管理员。"
 }

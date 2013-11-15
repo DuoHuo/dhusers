@@ -106,6 +106,32 @@ module.exports = function(app) {
     });
 
     // TODO render page for user activate.
+    /*
+    app.get('/activate', checkNotLogin, function(req, res) {
+        var activekey = req.query.activekey;
+        User.checkActivekey(activekey, function(err, user) {
+            if (err) {
+                req.flash('error', err);
+                return res.redirect(req.query.siteurl);
+            }
+
+            if (!user) {
+                req.flash('error', res.__('USER_ACTIVATED_NOT_EXIST'));
+                return res.redirect(req.query.siteurl);
+            }
+
+            User.activate(activekey, function(err) {
+                if (err) {
+                    req.flash('error', err);
+                    return res.redirect('/');
+                }
+                req.session.user = user;
+                req.flash('success', res.__('USER_ACTIVATED'));
+                return res.redirect(req.query.siteurl);
+            });
+        });
+    });
+
     app.get('/activate', function(req, res) {
         var activekey = req.query.activekey;
         User.checkActivekey(activekey, function(err, user) {
@@ -129,6 +155,7 @@ module.exports = function(app) {
             });
         });
     });
+    */
 
     app.post('/login', checkIP, function(req, res){
         // Generate password hash
@@ -169,6 +196,120 @@ module.exports = function(app) {
                 }
             }
         });
+    });
+
+    app.post('/forgot-password', checkIP, function(req, res) {
+        var mail = req.body.email,
+            siteurl = req.body.siteurl,
+            ip = req.body.ipaddress;
+
+        // Check email format
+        try {
+            check(mail, 'EMAIL_INVALID').len(4, 64).isEmail();
+        } catch (e) {
+            return res.end(JSON.stringify(new returnStatus('ERROR', e.message, null)));
+        }
+
+        User.check(null, mail, function(err, user) {
+            if (err) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', err.message, null)));
+            }
+            if (!user) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', 'USER_NOT_EXIST', null)));
+            }
+
+            // Get user info, generate key then send to user.
+            User.createResetkey(user.name, user.email, function(err, resetkey) {
+                if (err) {
+                    return res.end(JSON.stringify(new returnStatus('ERROR', err.message, null)));
+                }
+                // console.log(resetkey);
+
+                var resetLink = 'http://' + config.url + '/reset-password?resetkey=' + resetkey + '&go=' + siteurl;
+                if (config.ssl) {
+                    resetLink = 'https://' + config.url + '/reset-password?resetkey=' + resetkey + '&go=' + siteurl;
+                }
+                // console.log(resetLink);
+                var mailOptions = {
+                    from: config.serviceMailSender, // sender address
+                    to: user.email, // list of receivers
+                    subject: res.__('RESET_PASSWORD_SUBJECT') + ' - ' + config.siteName, // Subject line
+                    text: res.__('RESET_PASSWORD_BODY', ip, resetLink)
+                }
+                // send mail with defined transport object
+                // console.log(mailOptions.text);
+                smtpTransport.sendMail(mailOptions, function(err, response) {
+                    // console.log(response)
+                    if (err) {
+                        console.log(err);
+                    }
+                    // User.clearResetkey(resetkey);
+                    smtpTransport.close();
+                    res.end(JSON.stringify(new returnStatus('OK', 'RESET_EMAIL_SENT', null)));
+                });
+            });
+        });
+    });
+
+    // TODO render page for password reset
+    /*
+    app.get('/reset-password', csrf, checkNotLogin, function(req, res) {
+        res.render('reset-password',{
+            title: res.__('RESET_PASSWORD') + ' - ' + config.siteName,
+            siteName: config.siteName,
+            siteTagline: config.siteTagline,
+            allowReg: config.allowReg,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+    */
+
+    app.post('/reset-password', checkIP, function(req, res) {
+        var resetkey = req.query.resetkey;
+
+        try {
+            check(req.body.password, 'PASSWORD_EMPTY').notEmpty();
+            check(req.body['password-repeat'], 'PASSWORD_NOT_EQUAL').equals(req.body.password);
+            check(resetkey, 'RESETKEY_INCORRECT').isAlphanumeric().len(32);
+        } catch (e) {
+            req.flash('error', res.__(e.message));
+            return res.redirect('/');
+        }
+
+        // get password hash
+        var hash = crypto.createHash('sha256'),
+            password = hash.update(req.body.password).digest('hex');
+
+        User.checkResetkey(resetkey, function(err, user) {
+            if (err) {
+                req.flash('error', res.__(err));
+                return res.redirect('/');
+            }
+            if (!user) {
+                req.flash('error', res.__('USER_NOT_FOUND'));
+                return res.redirect('/');
+            }
+
+            var newUser = new User({
+                name: user.name,
+                password: password,
+                email: user.email
+            });
+
+            User.edit(newUser, function(err, user){
+                if(err) {
+                    req.flash('error', res.__(err));
+                    return res.redirect('/');
+                }
+                req.flash('success', res.__('PASSWORD_UPDATED'));
+                req.session.user = null;
+                res.redirect('/login');
+            });
+
+        });
+
     });
 
 
