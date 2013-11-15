@@ -4,10 +4,19 @@
  */
 
 var express = require('express')
-  , routes = require('./routes')
-  , config = require('./config.js')
-  , http = require('http')
-  , path = require('path');
+    , routes = require('./routes')
+    , config = require('./config.js')
+    , http = require('http')
+    , path = require('path')
+    , i18n = require('i18n');
+
+i18n.configure({
+    locales:['zh-cn'],
+    directory: './messages',
+    updateFiles: false,
+    indent: "\t",
+    extension: '.json'
+});
 
 var app = express();
 
@@ -20,11 +29,14 @@ app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(app.router);
+/*
 app.use(require('less-middleware')({
+
     dest: __dirname + '/public/',
     src: __dirname + '/public',
     compress: true
 }));
+*/
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only

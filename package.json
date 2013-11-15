@@ -1,16 +1,18 @@
 {
-  "name": "dhusers",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node dhusers.js"
-  },
-  "dependencies": {
-    "express": "3.3.4",
-    "ejs": "*",
-    "mongodb": "*",
-    "hat": "*",
-    "nodemailer": "*",
-    "validator": "*"
-  }
+    "name": "dhusers",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node dhusers.js"
+    },
+    "dependencies": {
+        "express": "3.3.4",
+        "ejs": "*",
+        "less-middleware": "*",
+        "mongodb": "*",
+        "hat": "*",
+        "nodemailer": "*",
+        "validator": "*",
+        "i18n": "*"
+    }
 }
