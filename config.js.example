@@ -1,0 +1,29 @@
+module.exports = {
+    // Server settings
+    // Host & port that our API server to listening to.
+    host: '127.0.0.1',
+    port: 48360,
+    ssl: false,
+
+    // Application settings
+    url: 'http://members.yoursite.com',
+    siteName: 'DuoHuoStudio',
+
+    // Security settings
+    // use IP whitelist, if set to true, only IPs in the trustedIPs array
+    // could use our API.
+    ipwhitelist: true,
+    trustedIPs: ['127.0.0.1', '127.0.0.2'],
+    // API key must be present and must be added to the api uri.
+    apikey: 'YouAPIKeyHere',
+
+    // Database settings
+    mongodb: 'mongodb://127.0.0.1/dhusers',
+
+    // Mail settings
+    serviceMailSMTP: 'Gmail',
+    serviceMailUser: 'example@gmail.com',
+    serviceMailPass: 'YourPasswordHere',
+    serviceMailSender: 'members@yousite.com'
+
+}

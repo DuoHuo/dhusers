@@ -6,7 +6,7 @@ DHUsers provides RESTful API for user management for DuoHuo Apps, using Node.js 
 ## APP Verification
 
 * APIKey - All requests should contain apikey parameter, such as POST http://example.com/u/test?apikey=yourpaikeyhere
-* IP whitelist (optional)
+* IP whitelist (optional) only IPs in a array could invoke the API server. This can be edited in config.
 
 ## APIs
 
@@ -78,7 +78,7 @@ All return results will be in JSON format.
 
 Example:
 
-POST /u/test
+GET /u/test
 
 And get:
 ```JSON
