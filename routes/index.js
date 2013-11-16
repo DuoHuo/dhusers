@@ -36,7 +36,7 @@ module.exports = function(app) {
         res.end(JSON.stringify(new returnStatus('OK', 'This is DuoHuo User system.', null)));
     });
 
-    app.post('/reg', checkIP, function(req, res) {
+    app.post('/reg', checkAPIKey, checkIP, function(req, res) {
         var name = req.body.username,
             mail = req.body.email,
             password = req.body.password,
@@ -157,7 +157,7 @@ module.exports = function(app) {
     });
     */
 
-    app.post('/login', checkIP, function(req, res){
+    app.post('/login', checkAPIKey, checkIP, function(req, res){
         // Generate password hash
         var hash = crypto.createHash('sha256'),
             password = hash.update(req.body.password).digest('hex'),
@@ -198,7 +198,7 @@ module.exports = function(app) {
         });
     });
 
-    app.post('/forgot-password', checkIP, function(req, res) {
+    app.post('/forgot-password', checkAPIKey, checkIP, function(req, res) {
         var mail = req.body.email,
             siteurl = req.body.siteurl,
             ip = req.body.ipaddress;
@@ -264,9 +264,9 @@ module.exports = function(app) {
             error: req.flash('error').toString()
         });
     });
-    */
 
-    app.post('/reset-password', checkIP, function(req, res) {
+
+    app.post('/reset-password', checkAPIKey, checkIP, function(req, res) {
         var resetkey = req.query.resetkey;
 
         try {
@@ -311,7 +311,69 @@ module.exports = function(app) {
         });
 
     });
+    */
 
+    app.post('/logout', checkAPIKey, checkIP, function(req, res) {
+        req.session.user = null;
+        res.redirect('/');
+    });
+
+    app.get('/u/:user', checkAPIKey, checkIP, function(req, res) {
+        User.get(req.params.user, function(err, doc) {
+            if (err) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', err.message, null)));
+            }
+            if (!doc) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', 'USER_NOT_EXIST', null)));
+            }
+            res.end(JSON.stringify(new returnStatus('OK', '', doc)));
+        });
+    });
+
+    app.post('/u/:user', checkAPIKey, checkIP, function(req, res) {
+        var email = req.body.email,
+            hash = crypto.createHash('sha256'),
+            password = hash.update(req.body.password).digest('hex');
+
+        try {
+            check(email, 'EMAIL_INVALID').len(4, 64).isEmail();
+        } catch (e) {
+            return res.end(JSON.stringify(new returnStatus('ERROR', e.message, null)));
+        }
+
+
+        User.get(req.params.user, function(err, doc) {
+            if (err) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', err.message, null)));
+            }
+            if (!doc) {
+                return res.end(JSON.stringify(new returnStatus('ERROR', 'USER_NOT_EXIST', null)));
+            } else {
+                var newUser = new User({
+                    name: req.params.user,
+                    email: email,
+                    password: password
+                });
+
+                User.check(null, newUser.email, function(err, user){
+                    // console.log(user);
+                    if(user && user.name != req.params.user) {
+                        err = 'USER_EXISTS';
+                    }
+                    if(err) {
+                        return res.end(JSON.stringify(new returnStatus('ERROR', err, null)));
+                    }
+
+                    User.edit(newUser, function(err){
+                        if(err) {
+                            return res.end(JSON.stringify(new returnStatus('ERROR', err.message, null)));
+                        }
+                        res.end(JSON.stringify(new returnStatus('OK', 'USER_UPDATED', null)));
+                    });
+                });
+            }
+        });
+    });
 
 }
 
@@ -321,6 +383,15 @@ function checkIP(req, res, next) {
     if (!config.ipwhitelist) {
         next();
     } else if (config.trustedIPs.indexOf(ip) != -1) {
+        next();
+    } else {
+        res.send(403, 'Forbidden.');
+    }
+}
+
+function checkAPIKey(req, res, next) {
+    var apikey = req.query.apikey;
+    if (apikey === config.apikey) {
         next();
     } else {
         res.send(403, 'Forbidden.');
