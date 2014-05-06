@@ -21,7 +21,7 @@ body:
   * `username` must be alphanumeric
   * `email` must be valid email
   * `password` better to be encrypted. Will be encrypted again using sha256.
-  * `siteurl` the url the user shall be redirected to(such as http://app.example.com/login). Will displayed in email sent to user for activation or orther stuff.
+  * `siteurl` the url the user shall be redirected to(such as http://app.example.com/login). Will displayed in email sent to user for activation or other stuff.
 
 #### Login
 
