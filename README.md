@@ -1,6 +1,8 @@
 dhusers
 =======
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/DuoHuo/dhusers.svg)](https://greenkeeper.io/)
+
 DHUsers provides RESTful API for user management for DuoHuo Apps, using Node.js & MongoDB.
 
 ## APP Verification
